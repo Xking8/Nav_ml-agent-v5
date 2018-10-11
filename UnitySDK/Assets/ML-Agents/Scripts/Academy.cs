@@ -607,7 +607,9 @@ namespace MLAgents
         /// </summary>
         void FixedUpdate()
         {
+			Time.timeScale = trainingConfiguration.timeScale;
             EnvironmentStep();
+
         }
 
         /// <summary>

@@ -157,6 +157,7 @@ class PPOTrainer(Trainer):
                 agent_brain_info = next_info
             agent_index = agent_brain_info.agents.index(agent_id)
             for i in range(len(next_info.visual_observations)):
+                print(i, len(next_info.visual_observations))
                 visual_observations[i].append(agent_brain_info.visual_observations[i][agent_index])
             vector_observations.append(agent_brain_info.vector_observations[agent_index])
             text_observations.append(agent_brain_info.text_observations[agent_index])
@@ -192,7 +193,8 @@ class PPOTrainer(Trainer):
             self.training_buffer[agent_id].last_brain_info = curr_info
             self.training_buffer[agent_id].last_take_action_outputs = take_action_outputs
 
-        if curr_info.agents != next_info.agents:
+
+        if curr_info.agents != next_info.agents and self.use_curiosity:
             curr_to_use = self.construct_curr_info(next_info)
         else:
             curr_to_use = curr_info

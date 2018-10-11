@@ -1,0 +1,1 @@
+mlagents-learn config/trainer_config.yaml --env=envs/Nav/Nav --run-id=firstRun --worker-id=0 --train
