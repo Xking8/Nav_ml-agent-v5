@@ -64,6 +64,8 @@
 *.DS_Store
 */.ipynb_checkpoints
 */.idea
+*/.idea/*
+*.idea*
 *.pyc
 *.idea/misc.xml
 *.idea/modules.xml
@@ -92,3 +94,4 @@ ml-agents-protobuf/Grpc*
 # Ignore PyPi build files.
 dist/
 build/
+.idea/vcs.xml

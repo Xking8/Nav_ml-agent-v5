@@ -355,7 +355,24 @@ class TrainerController(object):
                     take_action_value, \
                     take_action_outputs \
                         = {}, {}, {}, {}, {}
+                    #J
+                    n_actor = len(curr_info[brain_name].agents)
+                    density = [0] * n_actor
+                    #resolution = [default_resol] * n_actor
+                    repetition = [0] * n_actor
+                    ##J
+
+
                     for brain_name, trainer in self.trainers.items():
+
+                        '''for i in range(n_actor):
+                            density[i] = curr_info[brain_name].vector_observations[i][
+                                curr_info[brain_name].vector_observations.shape[1] - 2]
+                            curr_info[brain_name].vector_observations[i][
+                                curr_info[brain_name].vector_observations.shape[1] - 2] = 0
+                            repetition[i] = curr_info[brain_name].vector_observations[i][
+                                curr_info[brain_name].vector_observations.shape[1] - 1]
+                        '''
                         (take_action_vector[brain_name],
                          take_action_memories[brain_name],
                          take_action_text[brain_name],
@@ -368,7 +385,7 @@ class TrainerController(object):
                                              value=take_action_value)
                     for brain_name, trainer in self.trainers.items():
                         trainer.add_experiences(curr_info, new_info,
-                                                take_action_outputs[brain_name])
+                                                take_action_outputs[brain_name], density, repetition)
                         trainer.process_experiences(curr_info, new_info)
                         if trainer.is_ready_update() and self.train_model \
                                 and trainer.get_step <= trainer.get_max_steps:

@@ -1,1 +1,13 @@
-mlagents-learn config/trainer_config.yaml --env=envs/Nav/Nav --run-id=firstRun --worker-id=0 --train
+activate ml-agent_v5
+cd C:\Users\JunLab\Desktop\Nav(ml-agent_v5)
+
+mlagents-learn config/trainer_config.yaml --env=envs/Nav_FiGAR/Nav_FiGAR --run-id=FiGAR --worker-id=0 --train
+
+
+tensorboard --logdir=summaries
+
+
+
+environment name: FiGAR(a10,i25)
+		10 actions for repetition
+		interval = 25

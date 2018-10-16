@@ -27,7 +27,7 @@ public class UAVAgent : Agent {
 	public bool rs_action;
 	public bool request;
 	public int density;
-	public int repetitive;
+	public int repetition;
 	public int rep_interval;
 	//public override void InitializeAgent()
 	void Start () 
@@ -49,8 +49,9 @@ public class UAVAgent : Agent {
 		//imgSyn.OnSceneChange ();
 		request = false;
 		density = 0;
-		repetitive = 50;
+		repetition = 25;
 		rep_interval = 10;
+		agentParameters.numberOfActionsBetweenDecisions = repetition;
 	}
 
 	public override void CollectObservations()
@@ -71,7 +72,8 @@ public class UAVAgent : Agent {
 		AddVectorObs(rb.rotation.eulerAngles.y);
 		AddVectorObs(rb.rotation.eulerAngles.z);
 		AddVectorObs (density);
-		AddVectorObs (repetitive);
+		//AddVectorObs (agentParameters.numberOfActionsBetweenDecisions);
+		AddVectorObs (50);
 		//print (repetitive);
 		/*AddVectorObs(TargetRb.velocity.x);
 		AddVectorObs(TargetRb.velocity.y);
@@ -237,7 +239,7 @@ public class UAVAgent : Agent {
 		//ResetReward (); must not call ResetReward()
 		old_distance = Vector3.Distance (StartPos.position, TargetRb.position);
 		// academy.AcademyReset ();
-		repetitive = 50;
+		agentParameters.numberOfActionsBetweenDecisions = repetition;
 	}
 	bool OutOfRange()
 	{

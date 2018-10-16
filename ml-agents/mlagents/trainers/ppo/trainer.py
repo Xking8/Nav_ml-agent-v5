@@ -48,7 +48,11 @@ class PPOTrainer(Trainer):
                                 sess, self.is_training)
 
         stats = {'cumulative_reward': [], 'episode_length': [], 'value_estimate': [],
-                 'entropy': [], 'value_loss': [], 'policy_loss': [], 'learning_rate': []}
+                 'entropy': [], 'value_loss': [], 'policy_loss': [], 'learning_rate': [], 'success_record': []}
+
+        rep_stats = [[] for y in range(10)]
+        self.rep_stats = rep_stats
+
         if self.use_curiosity:
             stats['forward_loss'] = []
             stats['inverse_loss'] = []
@@ -64,7 +68,7 @@ class PPOTrainer(Trainer):
         if not os.path.exists(self.summary_path):
             os.makedirs(self.summary_path)
 
-        self.summary_writer = tf.summary.FileWriter(self.summary_path)
+        self.summary_writer = tf.summary.FileWriter(self.summary_path, graph = self.sess.graph)
 
     def __str__(self):
         return '''Hyperparameters for the PPO Trainer of brain {0}: \n{1}'''.format(
@@ -179,7 +183,7 @@ class PPOTrainer(Trainer):
                               prev_text_actions, max_reacheds)
         return curr_info
 
-    def add_experiences(self, curr_all_info: AllBrainInfo, next_all_info: AllBrainInfo, take_action_outputs):
+    def add_experiences(self, curr_all_info: AllBrainInfo, next_all_info: AllBrainInfo, take_action_outputs, density, repetition):
         """
         Adds experiences to each agent's experience history.
         :param curr_all_info: Dictionary of all current brains and corresponding BrainInfo.
@@ -251,6 +255,8 @@ class PPOTrainer(Trainer):
                     if agent_id not in self.episode_steps:
                         self.episode_steps[agent_id] = 0
                     self.episode_steps[agent_id] += 1
+        for i in range(len(density)):
+            self.rep_stats[int(density[i])].append(repetition[i])
 
     def process_experiences(self, current_info: AllBrainInfo, new_info: AllBrainInfo):
         """
@@ -304,7 +310,10 @@ class PPOTrainer(Trainer):
                         self.stats['intrinsic_reward'].append(
                             self.intrinsic_rewards.get(agent_id, 0))
                         self.intrinsic_rewards[agent_id] = 0
-
+                    if info.rewards[l] >= 1:
+                        self.stats['success_record'].append(1)
+                    else:
+                        self.stats['success_record'].append(0)
     def end_episode(self):
         """
         A signal that the Episode has ended. The buffer must be reset. 

@@ -112,7 +112,7 @@ class Trainer(object):
 
     def end_episode(self):
         """
-        A signal that the Episode has ended. The buffer must be reset. 
+         A signal that the Episode has ended. The buffer must be reset.
         Get only called when the academy resets.
         """
         raise UnityTrainerException("The end_episode method was not implemented.")
@@ -150,11 +150,24 @@ class Trainer(object):
                             .format(self.run_id, self.brain_name, self.get_step, is_training))
             summary = tf.Summary()
             for key in self.stats:
-                if len(self.stats[key]) > 0:
+                if len(self.stats[key]) > 0 and key != 'success_record':
                     stat_mean = float(np.mean(self.stats[key]))
                     summary.value.add(tag='Info/{}'.format(key), simple_value=stat_mean)
                     self.stats[key] = []
+            success_rate = float(np.mean(self.stats['success_record']))
+            summary.value.add(tag='Info/SuccessRate', simple_value=success_rate)
+            self.stats['success_record'] = self.stats['success_record'][-101:]
+
             summary.value.add(tag='Info/Lesson', simple_value=lesson_num)
+
+            for i in range(10):
+                if len(self.rep_stats[i]) > 0:
+                    #print(self.rep_stats[i])
+                    mean_rep =float(np.mean(self.rep_stats[i]))
+                    summary.value.add(tag='Repetition/Density {}'.format(i), simple_value=mean_rep)
+                    log_histogram(self.summary_writer, 'Rep_Histogram/Density{}'.format(i), self.rep_stats[i], self.get_step, 10)
+                    #tf.summary.scalar('Repetition/Density{}'.format(i), mean_rep)
+                    self.rep_stats[i] = []
             self.summary_writer.add_summary(summary, self.get_step)
             self.summary_writer.flush()
 
@@ -174,3 +187,33 @@ class Trainer(object):
             logger.info(
                 "Cannot write text summary for Tensorboard. Tensorflow version must be r1.2 or above.")
             pass
+def log_histogram(writer, tag, values, step, bins=1000):
+    # Convert to a numpy array
+    values = np.array(values)
+
+    # Create histogram using numpy
+    counts, bin_edges = np.histogram(values, bins=bins)
+
+    # Fill fields of histogram proto
+    hist = tf.HistogramProto()
+    hist.min = float(np.min(values))
+    hist.max = float(np.max(values))
+    hist.num = int(np.prod(values.shape))
+    hist.sum = float(np.sum(values))
+    hist.sum_squares = float(np.sum(values**2))
+
+    # Requires equal number as bins, where the first goes from -DBL_MAX to bin_edges[1]
+    # See https://github.com/tensorflow/tensorflow/blob/master/tensorflow/core/framework/summary.proto#L30
+    # Thus, we drop the start of the first bin
+    bin_edges = bin_edges[1:]
+
+    # Add bin edges and counts
+    for edge in bin_edges:
+        hist.bucket_limit.append(edge)
+    for c in counts:
+        hist.bucket.append(c)
+
+    # Create and write Summary
+    summary = tf.Summary(value=[tf.Summary.Value(tag=tag, histo=hist)])
+    writer.add_summary(summary, step)
+    writer.flush()
