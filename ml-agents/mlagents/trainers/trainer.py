@@ -160,11 +160,12 @@ class Trainer(object):
 
             summary.value.add(tag='Info/Lesson', simple_value=lesson_num)
 
-            for i in range(10):
+            for i in range(self.n_density):
                 if len(self.rep_stats[i]) > 0:
                     #print(self.rep_stats[i])
                     mean_rep =float(np.mean(self.rep_stats[i]))
                     summary.value.add(tag='Repetition/Density {}'.format(i), simple_value=mean_rep)
+                    print(i,": ",mean_rep)
                     log_histogram(self.summary_writer, 'Rep_Histogram/Density{}'.format(i), self.rep_stats[i], self.get_step, 10)
                     #tf.summary.scalar('Repetition/Density{}'.format(i), mean_rep)
                     self.rep_stats[i] = []

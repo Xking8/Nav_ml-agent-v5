@@ -49,8 +49,8 @@ class PPOTrainer(Trainer):
 
         stats = {'cumulative_reward': [], 'episode_length': [], 'value_estimate': [],
                  'entropy': [], 'value_loss': [], 'policy_loss': [], 'learning_rate': [], 'success_record': []}
-
-        rep_stats = [[] for y in range(10)]
+        self.n_density = 15
+        rep_stats = [[] for y in range(self.n_density)]
         self.rep_stats = rep_stats
 
         if self.use_curiosity:
@@ -256,7 +256,9 @@ class PPOTrainer(Trainer):
                         self.episode_steps[agent_id] = 0
                     self.episode_steps[agent_id] += 1
         for i in range(len(density)):
+            print(len(density), ": ", density[i], repetition[i])
             self.rep_stats[int(density[i])].append(repetition[i])
+            #print(len(density), ": ",density[i], repetition[i])
 
     def process_experiences(self, current_info: AllBrainInfo, new_info: AllBrainInfo):
         """

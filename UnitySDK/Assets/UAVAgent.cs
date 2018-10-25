@@ -72,8 +72,8 @@ public class UAVAgent : Agent {
 		AddVectorObs(rb.rotation.eulerAngles.y);
 		AddVectorObs(rb.rotation.eulerAngles.z);
 		AddVectorObs (density);
-		//AddVectorObs (agentParameters.numberOfActionsBetweenDecisions);
-		AddVectorObs (50);
+		AddVectorObs (agentParameters.numberOfActionsBetweenDecisions);
+		//AddVectorObs (50);
 		//print (repetitive);
 		/*AddVectorObs(TargetRb.velocity.x);
 		AddVectorObs(TargetRb.velocity.y);
@@ -107,7 +107,7 @@ public class UAVAgent : Agent {
 		}
 
 
-		agentParameters.numberOfActionsBetweenDecisions = 25 + 10 * (int)vectorAction [1];
+		agentParameters.numberOfActionsBetweenDecisions = repetition + 10 * (int)vectorAction [1];
 		/*if (vectorAction [0] == 5)
 			Menuver (MenuverType.Zminus);*/
 		
@@ -224,7 +224,8 @@ public class UAVAgent : Agent {
 		}
 		//Target.transform.position = Target.GetComponent<Vector3>();
 		Vector2 targetCircle = Random.insideUnitCircle;
-		Target.transform.position = new Vector3 (targetCircle.x*20, StartPos.position.y-1, targetCircle.y*20);
+		float target_distance = 50f;//20
+		Target.transform.position = new Vector3 (targetCircle.x*target_distance, StartPos.position.y-1, targetCircle.y*target_distance);
 		TargetRb.velocity = new Vector3 (0, 0, 0);
 
 		rb.velocity = new Vector3(0,0,0);
