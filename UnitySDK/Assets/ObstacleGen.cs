@@ -12,7 +12,7 @@ public class ObstacleGen : MonoBehaviour {
 	public int ObsNumMax;
 	public int count;
 	private int start_p;
-
+	public int[] ObsRootList;
 	// Use this for initialization
 	void Start () {
 		count = 0;
@@ -26,6 +26,7 @@ public class ObstacleGen : MonoBehaviour {
 			Obs [i] = Instantiate (mycube, new Vector3 (600, 600, 600), Quaternion.Euler (0, 0, 0));
 		}
 		start_p = -50;
+		ObsRootList =new int[] {1, 20};
 		//Generate (new Vector3(0,0,0),new Vector3(0,0,0));
 
 	}
@@ -33,7 +34,8 @@ public class ObstacleGen : MonoBehaviour {
 		for (int i = 0; i < ObsNumMax; i++) {
 			Obs [i].transform.position = new Vector3 (600, 600, 600);
 		}
-		ObsRoot = Random.Range(0,15);
+
+		ObsRoot = ObsRootList[Random.Range (0, 2)];
 		//ObsRoot = (int)density;
 
 		ObsNum = ObsRoot * ObsRoot;

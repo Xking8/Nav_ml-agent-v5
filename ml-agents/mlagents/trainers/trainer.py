@@ -150,13 +150,15 @@ class Trainer(object):
                             .format(self.run_id, self.brain_name, self.get_step, is_training))
             summary = tf.Summary()
             for key in self.stats:
-                if len(self.stats[key]) > 0 and key != 'success_record':
+                if len(self.stats[key]) > 0 and 'SuccessRate' not in key:
                     stat_mean = float(np.mean(self.stats[key]))
                     summary.value.add(tag='Info/{}'.format(key), simple_value=stat_mean)
                     self.stats[key] = []
-            success_rate = float(np.mean(self.stats['success_record']))
-            summary.value.add(tag='Info/SuccessRate', simple_value=success_rate)
-            self.stats['success_record'] = self.stats['success_record'][-101:]
+                elif 'SuccessRate' in key:
+                    success_rate = float(np.mean(self.stats[key]))
+                    summary.value.add(tag='Info/{}'.format(key), simple_value=success_rate)
+
+                    self.stats[key] = self.stats[key][-101:]
 
             summary.value.add(tag='Info/Lesson', simple_value=lesson_num)
 

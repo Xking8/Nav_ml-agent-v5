@@ -391,7 +391,7 @@ class TrainerController(object):
                     for brain_name, trainer in self.trainers.items():
                         trainer.add_experiences(curr_info, new_info,
                                                 take_action_outputs[brain_name], density, repetition)
-                        trainer.process_experiences(curr_info, new_info)
+                        trainer.process_experiences(curr_info, new_info, density)
                         if trainer.is_ready_update() and self.train_model \
                                 and trainer.get_step <= trainer.get_max_steps:
                             # Perform gradient descent with experience buffer
