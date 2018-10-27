@@ -161,7 +161,7 @@ class PPOTrainer(Trainer):
                 agent_brain_info = next_info
             agent_index = agent_brain_info.agents.index(agent_id)
             for i in range(len(next_info.visual_observations)):
-                print(i, len(next_info.visual_observations))
+                #print(i, len(next_info.visual_observations))
                 visual_observations[i].append(agent_brain_info.visual_observations[i][agent_index])
             vector_observations.append(agent_brain_info.vector_observations[agent_index])
             text_observations.append(agent_brain_info.text_observations[agent_index])
@@ -256,7 +256,7 @@ class PPOTrainer(Trainer):
                         self.episode_steps[agent_id] = 0
                     self.episode_steps[agent_id] += 1
         for i in range(len(density)):
-            print(len(density), ": ", density[i], repetition[i])
+            #print(len(density), ": ", density[i], repetition[i])
             self.rep_stats[int(density[i])].append(repetition[i])
             #print(len(density), ": ",density[i], repetition[i])
 
