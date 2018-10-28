@@ -48,7 +48,7 @@ class PPOTrainer(Trainer):
                                 sess, self.is_training)
 
         stats = {'cumulative_reward': [], 'episode_length': [], 'value_estimate': [],
-                 'entropy': [], 'value_loss': [], 'policy_loss': [], 'learning_rate': [], 'success_record': []}
+                 'entropy': [], 'value_loss': [], 'policy_loss': [], 'learning_rate': [], 'SuccessRate': []}
         self.n_density = 15
         rep_stats = [[] for y in range(self.n_density)]
         self.rep_stats = rep_stats
@@ -260,7 +260,7 @@ class PPOTrainer(Trainer):
             self.rep_stats[int(density[i])].append(repetition[i])
             #print(len(density), ": ",density[i], repetition[i])
 
-    def process_experiences(self, current_info: AllBrainInfo, new_info: AllBrainInfo):
+    def process_experiences(self, current_info: AllBrainInfo, new_info: AllBrainInfo, density):
         """
         Checks agent histories for processing condition, and processes them as necessary.
         Processing involves calculating value and advantage targets for model updating step.
@@ -308,14 +308,22 @@ class PPOTrainer(Trainer):
                         self.episode_steps.get(agent_id, 0))
                     self.cumulative_rewards[agent_id] = 0
                     self.episode_steps[agent_id] = 0
+
+                    s = 'SuccessRate_in_density' + str(
+                        int(info.vector_observations[l][info.vector_observations.shape[1] - 2]))
+                    if s not in self.stats:
+                        self.stats[s] = []
+                        print("initital stats[", s, "]")
                     if self.use_curiosity:
                         self.stats['intrinsic_reward'].append(
                             self.intrinsic_rewards.get(agent_id, 0))
                         self.intrinsic_rewards[agent_id] = 0
                     if info.rewards[l] >= 1:
-                        self.stats['success_record'].append(1)
+                        self.stats['SuccessRate'].append(1)
+                        self.stats[s].append(1)
                     else:
-                        self.stats['success_record'].append(0)
+                        self.stats['SuccessRate'].append(0)
+                        self.stats[s].append(0)
     def end_episode(self):
         """
         A signal that the Episode has ended. The buffer must be reset. 

@@ -49,8 +49,8 @@ public class UAVAgent : Agent {
 		//imgSyn.OnSceneChange ();
 		request = false;
 		density = 0;
-		repetition = 5;
-		rep_interval = 10;
+		repetition = 15;
+		rep_interval = 15;
 		agentParameters.numberOfActionsBetweenDecisions = repetition;
 	}
 

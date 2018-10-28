@@ -150,13 +150,15 @@ class Trainer(object):
                             .format(self.run_id, self.brain_name, self.get_step, is_training))
             summary = tf.Summary()
             for key in self.stats:
-                if len(self.stats[key]) > 0 and key != 'success_record':
+                if len(self.stats[key]) > 0 and 'SuccessRate' not in key:
                     stat_mean = float(np.mean(self.stats[key]))
                     summary.value.add(tag='Info/{}'.format(key), simple_value=stat_mean)
                     self.stats[key] = []
-            success_rate = float(np.mean(self.stats['success_record']))
-            summary.value.add(tag='Info/SuccessRate', simple_value=success_rate)
-            self.stats['success_record'] = self.stats['success_record'][-101:]
+                elif 'SuccessRate' in key:
+                    success_rate = float(np.mean(self.stats[key]))
+                    summary.value.add(tag='Info/{}'.format(key), simple_value=success_rate)
+                    print(key.strip('SuccessRate'), " playing episoed: ", len(self.stats[key]))
+                    self.stats[key] = self.stats[key][-int(len(self.stats[key])/10) :]
 
             summary.value.add(tag='Info/Lesson', simple_value=lesson_num)
 
@@ -165,7 +167,7 @@ class Trainer(object):
                     #print(self.rep_stats[i])
                     mean_rep =float(np.mean(self.rep_stats[i]))
                     summary.value.add(tag='Repetition/Density {}'.format(i), simple_value=mean_rep)
-                    print(i,": ",mean_rep)
+                    print(i,": ",mean_rep," of #",len(self.rep_stats[i])," stats")
                     log_histogram(self.summary_writer, 'Rep_Histogram/Density{}'.format(i), self.rep_stats[i], self.get_step, 10)
                     #tf.summary.scalar('Repetition/Density{}'.format(i), mean_rep)
                     self.rep_stats[i] = []
