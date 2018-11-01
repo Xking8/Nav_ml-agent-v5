@@ -171,6 +171,17 @@ class Trainer(object):
                     log_histogram(self.summary_writer, 'Rep_Histogram/Density{}'.format(i), self.rep_stats[i], self.get_step, 10)
                     #tf.summary.scalar('Repetition/Density{}'.format(i), mean_rep)
                     self.rep_stats[i] = []
+            log_histogram(self.summary_writer, 'AllRepHistogram/', self.all_rep_stats, self.get_step, 10)
+            var_all_rep = np.var(self.all_rep_stats)
+            summary.value.add(tag='Repetition/stddev', simple_value=var_all_rep)
+            if self.FiGAR:
+                s = 15
+                a =6
+                i=15
+                for i in range(a):
+                    rep = s + i*15
+                    ratio = self.all_rep_stats.count(rep)/len(self.all_rep_stats)
+                    print(rep, " ratio: ", ratio)
             self.summary_writer.add_summary(summary, self.get_step)
             self.summary_writer.flush()
 

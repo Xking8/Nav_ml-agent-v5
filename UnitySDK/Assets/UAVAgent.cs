@@ -49,8 +49,8 @@ public class UAVAgent : Agent {
 		//imgSyn.OnSceneChange ();
 		request = false;
 		density = 0;
-		repetition = 15;
-		rep_interval = 15;
+		repetition = 50;
+		rep_interval = 25;
 		agentParameters.numberOfActionsBetweenDecisions = repetition;
 	}
 
@@ -88,26 +88,21 @@ public class UAVAgent : Agent {
 		if (vectorAction [0] == 0) {
 			Menuver (MenuverType.Xplus);
 
-		}
-		else if (vectorAction [0] == 1) {
+		} else if (vectorAction [0] == 1) {
 			Menuver (MenuverType.Xminus);
 
-		}
-		else if (vectorAction [0] == 2) {
+		} else if (vectorAction [0] == 2) {
 			Menuver (MenuverType.Yplus);
 
-		}
-		else if (vectorAction [0] == 3) {
+		} else if (vectorAction [0] == 3) {
 			Menuver (MenuverType.Yminus);
 
-		}
-		else if (vectorAction [0] == 4) {
+		} else if (vectorAction [0] == 4) {
 			Menuver (MenuverType.Zplus);
 
-		}
-
-
-		agentParameters.numberOfActionsBetweenDecisions = repetition + rep_interval * (int)vectorAction [1];
+		} else
+			Menuver (MenuverType.None);
+		//agentParameters.numberOfActionsBetweenDecisions = repetition + rep_interval * (int)vectorAction [1];
 		/*if (vectorAction [0] == 5)
 			Menuver (MenuverType.Zminus);*/
 		
@@ -224,13 +219,22 @@ public class UAVAgent : Agent {
 		}
 		//Target.transform.position = Target.GetComponent<Vector3>();
 		Vector2 targetCircle = Random.insideUnitCircle;
-		float target_distance = 50f;//20
-		Target.transform.position = new Vector3 (targetCircle.x*target_distance, StartPos.position.y-1, targetCircle.y*target_distance);
+		//Vector2 targetCircle = Random.insideUnitCircle.normalized;
+		float target_distance;
+		int denseness = Random.Range(0,2);
+		if (denseness == 1) //0 for sparse, 1 for dense
+		{	
+			target_distance = 5f;//20
+			targetCircle = Random.insideUnitCircle.normalized;
+		}
+		else
+			target_distance = 50f;//20
+		Target.transform.position = new Vector3 (StartPos.position.x + targetCircle.x*target_distance, StartPos.position.y-1, StartPos.position.z + targetCircle.y*target_distance);	
 		TargetRb.velocity = new Vector3 (0, 0, 0);
 
 		rb.velocity = new Vector3(0,0,0);
 		if(GetComponentInParent<ObstacleGen>())
-			density = GetComponentInParent<ObstacleGen>().Generate(transform.position, Target.transform.position);
+			density = GetComponentInParent<ObstacleGen>().Generate(transform.position, Target.transform.position, denseness);
 		if (GetComponentInParent<RanTargetAgentPos> ())
 			GetComponentInParent<RanTargetAgentPos> ().RanTA ();	
 		/*last
@@ -286,7 +290,7 @@ public class UAVAgent : Agent {
 		*/
 
 		//type = MenuverType.Zplus;
-		float Scaling = 2f;
+		float Scaling = 2f*2;
 		float vertiScaling = 1f;
 		if (type == MenuverType.Xplus && rb.velocity.x < vel_limit) { //rotate clockwise
 			rb.velocity = transform.forward*0;
@@ -306,12 +310,12 @@ public class UAVAgent : Agent {
 		}
 
 		else if (type == MenuverType.Yplus && rb.velocity.y < vel_limit) {
-			rb.velocity = Vector3.up * vertiScaling * Scaling;
+			rb.velocity = Vector3.up * vertiScaling;
 			//rb.AddForce (Vector3.up * vertiScaling);
 			//print ("Up"+mysteps);
 		}
 		else if (type == MenuverType.Yminus && rb.velocity.y * -1 < vel_limit) {
-			rb.velocity = Vector3.down * vertiScaling * Scaling;
+			rb.velocity = Vector3.down * vertiScaling;
 			//print ("Down"+mysteps);
 		}
 		else if (type == MenuverType.Zplus && rb.velocity.z < vel_limit) {

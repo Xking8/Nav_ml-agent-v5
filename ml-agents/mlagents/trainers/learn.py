@@ -37,13 +37,13 @@ def run_training(sub_id, run_seed, run_options):
     fast_simulation = not bool(run_options['--slow'])
     no_graphics = run_options['--no-graphics']
     trainer_config_path = run_options['<trainer-config-path>']
-
+    FiGAR = run_options['--FiGAR']
     # Create controller and begin training.
     tc = TrainerController(env_path, run_id + '-' + str(sub_id),
                            save_freq, curriculum_file, fast_simulation,
                            load_model, train_model, worker_id + sub_id,
                            keep_checkpoints, lesson, run_seed,
-                           docker_target_name, trainer_config_path, no_graphics)
+                           docker_target_name, trainer_config_path, no_graphics, FiGAR)
     tc.start_learning()
 
 
@@ -89,6 +89,7 @@ def main():
       --worker-id=<n>            Number to add to communication port (5005) [default: 0].
       --docker-target-name=<dt>  Docker volume to store training-specific files [default: None].
       --no-graphics              Whether to run the environment in no-graphics mode [default: False].
+      --FiGAR                    FiGAR mode[default: False].
     '''
 
     options = docopt(_USAGE)

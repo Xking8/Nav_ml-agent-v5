@@ -23,7 +23,7 @@ class TrainerController(object):
     def __init__(self, env_path, run_id, save_freq, curriculum_folder,
                  fast_simulation, load, train, worker_id, keep_checkpoints,
                  lesson, seed, docker_target_name,
-                 trainer_config_path, no_graphics):
+                 trainer_config_path, no_graphics, FiGAR):
         """
         :param env_path: Location to the environment executable to be loaded.
         :param run_id: The sub-directory name for model and summary statistics
@@ -92,6 +92,7 @@ class TrainerController(object):
         self.keep_checkpoints = keep_checkpoints
         self.trainers = {}
         self.seed = seed
+        self.FiGAR = FiGAR
         np.random.seed(self.seed)
         tf.set_random_seed(self.seed)
         self.env = UnityEnvironment(file_name=env_path,
@@ -235,7 +236,7 @@ class TrainerController(object):
                         .brains_to_curriculums[brain_name]
                         .min_lesson_length if self.meta_curriculum else 0,
                     trainer_parameters_dict[brain_name],
-                    self.train_model, self.seed, self.run_id)
+                    self.train_model, self.seed, self.run_id, self.FiGAR)
             else:
                 raise UnityEnvironmentException('The trainer config contains '
                                                 'an unknown trainer type for '

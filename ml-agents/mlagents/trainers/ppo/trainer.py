@@ -20,7 +20,7 @@ logger = logging.getLogger("mlagents.envs")
 class PPOTrainer(Trainer):
     """The PPOTrainer is an implementation of the PPO algorithm."""
 
-    def __init__(self, sess, brain, reward_buff_cap, trainer_parameters, training, seed, run_id):
+    def __init__(self, sess, brain, reward_buff_cap, trainer_parameters, training, seed, run_id, FiGAR):
         """
         Responsible for collecting experiences and training PPO model.
         :param sess: Tensorflow session.
@@ -49,10 +49,11 @@ class PPOTrainer(Trainer):
 
         stats = {'cumulative_reward': [], 'episode_length': [], 'value_estimate': [],
                  'entropy': [], 'value_loss': [], 'policy_loss': [], 'learning_rate': [], 'SuccessRate': []}
-        self.n_density = 15
+        self.n_density = 36
         rep_stats = [[] for y in range(self.n_density)]
         self.rep_stats = rep_stats
-
+        self.all_rep_stats = []
+        self.FiGAR = FiGAR
         if self.use_curiosity:
             stats['forward_loss'] = []
             stats['inverse_loss'] = []
@@ -258,6 +259,7 @@ class PPOTrainer(Trainer):
         for i in range(len(density)):
             #print(len(density), ": ", density[i], repetition[i])
             self.rep_stats[int(density[i])].append(repetition[i])
+            self.all_rep_stats.append(repetition[i])
             #print(len(density), ": ",density[i], repetition[i])
 
     def process_experiences(self, current_info: AllBrainInfo, new_info: AllBrainInfo, density):

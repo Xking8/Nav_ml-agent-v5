@@ -17,7 +17,7 @@ public class ObstacleGen : MonoBehaviour {
 	void Start () {
 		count = 0;
 	//void Awaken () {
-		ObsRootMax = 30;
+		ObsRootMax = 50;
 		ObsNumMax = ObsRootMax*ObsRootMax;
 
 		Obs = new GameObject[ObsNumMax];
@@ -29,46 +29,89 @@ public class ObstacleGen : MonoBehaviour {
 		//Generate (new Vector3(0,0,0),new Vector3(0,0,0));
 
 	}
-	public int Generate(Vector3 agentPos, Vector3 targetPos) {
+	public int Generate(Vector3 agentPos, Vector3 targetPos, int denseness) {
 		for (int i = 0; i < ObsNumMax; i++) {
 			Obs [i].transform.position = new Vector3 (600, 600, 600);
 		}
-		ObsRoot = Random.Range(0,15);
-		//ObsRoot = (int)density;
+		if (denseness == 0) {
+			start_p = -50;
+			ObsRoot = 5;//Random.Range (0, 10);
+			//ObsRoot = (int)density;
 
-		ObsNum = ObsRoot * ObsRoot;
-		//print (count+ ": " + ObsRoot + ", " + ObsNum);
-		count += 1;
-		float itr = Mathf.Sqrt (ObsNum);
-		for (int i = 0; i < itr; i++) {
-			for (int j = 0; j < itr ; j++) {
-				//float x = -1*ObsRoot *(ObsRoot-1)/2+ j * ObsRoot * Random.value * 2 + Random.value * 2;
-				//float z = -1*ObsRoot *(ObsRoot-1)/2+ i * ObsRoot * Random.value * 2 + Random.value * 2;
-				float x = start_p + -2*start_p*j/ObsRoot+ -2*start_p/ObsRoot*Random.value;
-				float z = start_p + -2*start_p*i/ObsRoot;
-				float scaleY = 10 + Random.value * 5 ;
-				/*while (x > -3 || x < 3) {
-					x = -21 + j * 7 + Random.value * 2 + 2;
-				}*/
-				if(!validateGen(agentPos, targetPos, x, z))
-					continue;
-//				if (x > -3 && x < 3 && z > -3 && z < 3)
-//					continue;
-//
-//				/*while (z > -3 || z < 3) {
-//					z = -21 + j * 7 + Random.value * 2 + 2;
-//				}*/
-//				if (x > -3 && x < 3 && z > -3 && z < 3)
-//					continue;
-				//Vector3 pos = new Vector3 (-21+j*7 +5, transform.position.y, -21+i*7+5);
-				Vector3 pos = new Vector3 (x, scaleY/2 - 0.5f + targetPos.y, z);
-				//Obs [i+j] = Instantiate (mycube, pos,  Quaternion.Euler (0, Random.value*360, 0));
-				Obs [i*Mathf.RoundToInt(itr)+j].transform.position = pos;
-				Obs [i * Mathf.RoundToInt (itr) + j].transform.rotation = Quaternion.Euler (0, Random.value * 360, 0);
-				//print (i +" "+ j);
-				Obs [i*Mathf.RoundToInt(itr)+j].transform.localScale =new Vector3 (0.1f + Random.value*2, scaleY, 0.1f + Random.value * 5);
+			ObsNum = ObsRoot * ObsRoot;
+			//print (count+ ": " + ObsRoot + ", " + ObsNum);
+			count += 1;
+			float itr = Mathf.Sqrt (ObsNum);
+			for (int i = 0; i < itr; i++) {
+				for (int j = 0; j < itr; j++) {
+					//float x = -1*ObsRoot *(ObsRoot-1)/2+ j * ObsRoot * Random.value * 2 + Random.value * 2;
+					//float z = -1*ObsRoot *(ObsRoot-1)/2+ i * ObsRoot * Random.value * 2 + Random.value * 2;
+					float x = start_p + -2 * start_p * j / ObsRoot + -2 * start_p / ObsRoot * Random.value;
+					float z = start_p + -2 * start_p * i / ObsRoot;
+					float scaleY = 10 + Random.value * 5;
+					/*while (x > -3 || x < 3) {
+						x = -21 + j * 7 + Random.value * 2 + 2;
+					}*/
+					if (!validateGen (agentPos, targetPos, x, z))
+						continue;
+					//				if (x > -3 && x < 3 && z > -3 && z < 3)
+					//					continue;
+					//
+					//				/*while (z > -3 || z < 3) {
+					//					z = -21 + j * 7 + Random.value * 2 + 2;
+					//				}*/
+					//				if (x > -3 && x < 3 && z > -3 && z < 3)
+					//					continue;
+					//Vector3 pos = new Vector3 (-21+j*7 +5, transform.position.y, -21+i*7+5);
+					Vector3 pos = new Vector3 (x, scaleY / 2 - 0.5f + targetPos.y, z);
+					//Obs [i+j] = Instantiate (mycube, pos,  Quaternion.Euler (0, Random.value*360, 0));
+					Obs [i * Mathf.RoundToInt (itr) + j].transform.position = pos;
+					Obs [i * Mathf.RoundToInt (itr) + j].transform.rotation = Quaternion.Euler (0, Random.value * 360, 0);
+					//print (i +" "+ j);
+					Obs [i * Mathf.RoundToInt (itr) + j].transform.localScale = new Vector3 (0.1f + Random.value * 2, scaleY, 0.1f + Random.value * 5);
 
-				//Obs [i].layer = 10;
+					//Obs [i].layer = 10;
+				}
+			}
+		} else {
+			start_p = -35;
+			ObsRoot = 35;
+			//ObsRoot = (int)density;
+
+			ObsNum = ObsRoot * ObsRoot;
+			//print (count+ ": " + ObsRoot + ", " + ObsNum);
+			count += 1;
+			float itr = Mathf.Sqrt (ObsNum);
+			for (int i = 0; i < itr; i++) {
+				for (int j = 0; j < itr; j++) {
+					//float x = -1*ObsRoot *(ObsRoot-1)/2+ j * ObsRoot * Random.value * 2 + Random.value * 2;
+					//float z = -1*ObsRoot *(ObsRoot-1)/2+ i * ObsRoot * Random.value * 2 + Random.value * 2;
+					float x = start_p + -2 * start_p * j / ObsRoot ;// +  -2 * start_p / ObsRoot * Random.value;
+					float z = start_p + -2 * start_p * i / ObsRoot;
+					float scaleY = 10 + Random.value * 5;
+					/*while (x > -3 || x < 3) {
+						x = -21 + j * 7 + Random.value * 2 + 2;
+					}*/
+					if (!validateGen (agentPos, targetPos, x, z))
+						continue;
+					//				if (x > -3 && x < 3 && z > -3 && z < 3)
+					//					continue;
+					//
+					//				/*while (z > -3 || z < 3) {
+					//					z = -21 + j * 7 + Random.value * 2 + 2;
+					//				}*/
+					//				if (x > -3 && x < 3 && z > -3 && z < 3)
+					//					continue;
+					//Vector3 pos = new Vector3 (-21+j*7 +5, transform.position.y, -21+i*7+5);
+					Vector3 pos = new Vector3 (x, scaleY / 2 - 0.5f + targetPos.y, z);
+					//Obs [i+j] = Instantiate (mycube, pos,  Quaternion.Euler (0, Random.value*360, 0));
+					Obs [i * Mathf.RoundToInt (itr) + j].transform.position = pos;
+					Obs [i * Mathf.RoundToInt (itr) + j].transform.rotation = Quaternion.Euler (0, Random.value * 360, 0);
+					//print (i +" "+ j);
+					Obs [i * Mathf.RoundToInt (itr) + j].transform.localScale = new Vector3 (0.3f, scaleY, 0.3f);
+
+					//Obs [i].layer = 10;
+				}
 			}
 		}
 		return ObsRoot;
@@ -88,9 +131,10 @@ public class ObstacleGen : MonoBehaviour {
 
 	}
 	public bool validateGen(Vector3 agentPos,Vector3 targetPos, float x, float z) {
-		if (x > agentPos.x - 3 && x < agentPos.x + 3 && z > agentPos.z - 3 && z < agentPos.z + 3)
+		float dist = 1.5f;
+		if (x > agentPos.x - dist && x < agentPos.x + dist && z > agentPos.z - dist && z < agentPos.z + dist)
 			return false;
-		if (x > targetPos.x - 3 && x < targetPos.x + 3 && z > targetPos.z - 3 && z < targetPos.z + 3)
+		if (x > targetPos.x - dist && x < targetPos.x + dist && z > targetPos.z - dist && z < targetPos.z + dist)
 			return false;
 		return true;
 	}
