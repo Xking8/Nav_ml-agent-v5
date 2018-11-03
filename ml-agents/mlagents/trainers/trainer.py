@@ -175,13 +175,14 @@ class Trainer(object):
             var_all_rep = np.var(self.all_rep_stats)
             summary.value.add(tag='Repetition/stddev', simple_value=var_all_rep)
             if self.FiGAR:
-                s = 15
-                a =6
-                i=15
+                s = 5
+                a = 6
+                interval= 25
                 for i in range(a):
-                    rep = s + i*15
+                    rep = s + i*interval
                     ratio = self.all_rep_stats.count(rep)/len(self.all_rep_stats)
-                    print(rep, " ratio: ", ratio)
+                    print(rep, " ratio: ", ratio, " (" , self.all_rep_stats.count(rep),"/",len(self.all_rep_stats))
+            self.all_rep_stats = []
             self.summary_writer.add_summary(summary, self.get_step)
             self.summary_writer.flush()
 
