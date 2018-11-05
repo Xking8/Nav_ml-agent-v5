@@ -159,6 +159,7 @@ class Trainer(object):
                     summary.value.add(tag='Info/{}'.format(key), simple_value=success_rate)
                     print(key.strip('SuccessRate'), " playing episoed: ", len(self.stats[key]))
                     self.stats[key] = self.stats[key][-int(len(self.stats[key])/10) :]
+                    print("SuccessRate ", key.strip('SuccessRate_in_density'), " : ", success_rate)
 
             summary.value.add(tag='Info/Lesson', simple_value=lesson_num)
 
@@ -175,9 +176,9 @@ class Trainer(object):
             var_all_rep = np.var(self.all_rep_stats)
             summary.value.add(tag='Repetition/stddev', simple_value=var_all_rep)
             if self.FiGAR:
-                s = 5
+                s = 15
                 a = 6
-                interval= 25
+                interval= 15
                 for i in range(a):
                     rep = s + i*interval
                     ratio = self.all_rep_stats.count(rep)/len(self.all_rep_stats)

@@ -54,6 +54,8 @@ class PPOTrainer(Trainer):
         self.rep_stats = rep_stats
         self.all_rep_stats = []
         self.FiGAR = FiGAR
+        self.agent_density = {}
+
         if self.use_curiosity:
             stats['forward_loss'] = []
             stats['inverse_loss'] = []
@@ -197,7 +199,9 @@ class PPOTrainer(Trainer):
         for agent_id in curr_info.agents:
             self.training_buffer[agent_id].last_brain_info = curr_info
             self.training_buffer[agent_id].last_take_action_outputs = take_action_outputs
-
+            cur_index = curr_info.agents.index(agent_id)
+            self.agent_density[agent_id] = curr_info.vector_observations[cur_index][curr_info.vector_observations.shape[1] - 2]
+            #print(self.agent_density)
 
         if curr_info.agents != next_info.agents and self.use_curiosity:
             curr_to_use = self.construct_curr_info(next_info)
@@ -312,7 +316,8 @@ class PPOTrainer(Trainer):
                     self.episode_steps[agent_id] = 0
 
                     s = 'SuccessRate_in_density' + str(
-                        int(info.vector_observations[l][info.vector_observations.shape[1] - 2]))
+                        int(self.agent_density[agent_id]))
+                        #int(current_info[self.brain_name].vector_observations[cur_index][info.vector_observations.shape[1] - 2]))
                     if s not in self.stats:
                         self.stats[s] = []
                         print("initital stats[", s, "]")
@@ -323,9 +328,12 @@ class PPOTrainer(Trainer):
                     if info.rewards[l] >= 1:
                         self.stats['SuccessRate'].append(1)
                         self.stats[s].append(1)
+                        if self.agent_density[agent_id] == 35:
+                            print("Success in ", s)
                     else:
                         self.stats['SuccessRate'].append(0)
                         self.stats[s].append(0)
+                        #print("Fail in ", s)
     def end_episode(self):
         """
         A signal that the Episode has ended. The buffer must be reset. 
