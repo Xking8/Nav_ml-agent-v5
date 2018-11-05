@@ -35,7 +35,7 @@ public class ObstacleGen : MonoBehaviour {
 		}
 		if (denseness == 0) {
 			start_p = -50;
-			ObsRoot = 5;//Random.Range (0, 10);
+			ObsRoot = Random.Range (0, 15);//5*Random.Range (0, 6);
 			//ObsRoot = (int)density;
 
 			ObsNum = ObsRoot * ObsRoot;
@@ -74,8 +74,8 @@ public class ObstacleGen : MonoBehaviour {
 				}
 			}
 		} else {
-			start_p = -35;
-			ObsRoot = 35;
+			start_p = -50;
+			ObsRoot = 15;//Random.Range (0, 10);
 			//ObsRoot = (int)density;
 
 			ObsNum = ObsRoot * ObsRoot;
@@ -86,7 +86,7 @@ public class ObstacleGen : MonoBehaviour {
 				for (int j = 0; j < itr; j++) {
 					//float x = -1*ObsRoot *(ObsRoot-1)/2+ j * ObsRoot * Random.value * 2 + Random.value * 2;
 					//float z = -1*ObsRoot *(ObsRoot-1)/2+ i * ObsRoot * Random.value * 2 + Random.value * 2;
-					float x = start_p + -2 * start_p * j / ObsRoot ;// +  -2 * start_p / ObsRoot * Random.value;
+					float x = start_p + -2 * start_p * j / ObsRoot + -2 * start_p / ObsRoot * Random.value;
 					float z = start_p + -2 * start_p * i / ObsRoot;
 					float scaleY = 10 + Random.value * 5;
 					/*while (x > -3 || x < 3) {
@@ -108,7 +108,7 @@ public class ObstacleGen : MonoBehaviour {
 					Obs [i * Mathf.RoundToInt (itr) + j].transform.position = pos;
 					Obs [i * Mathf.RoundToInt (itr) + j].transform.rotation = Quaternion.Euler (0, Random.value * 360, 0);
 					//print (i +" "+ j);
-					Obs [i * Mathf.RoundToInt (itr) + j].transform.localScale = new Vector3 (0.3f, scaleY, 0.3f);
+					Obs [i * Mathf.RoundToInt (itr) + j].transform.localScale = new Vector3 (0.1f + Random.value * 2, scaleY, 0.1f + Random.value * 5);
 
 					//Obs [i].layer = 10;
 				}
@@ -131,7 +131,7 @@ public class ObstacleGen : MonoBehaviour {
 
 	}
 	public bool validateGen(Vector3 agentPos,Vector3 targetPos, float x, float z) {
-		float dist = 1.5f;
+		float dist = 3f;
 		if (x > agentPos.x - dist && x < agentPos.x + dist && z > agentPos.z - dist && z < agentPos.z + dist)
 			return false;
 		if (x > targetPos.x - dist && x < targetPos.x + dist && z > targetPos.z - dist && z < targetPos.z + dist)

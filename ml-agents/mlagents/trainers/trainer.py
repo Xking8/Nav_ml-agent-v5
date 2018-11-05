@@ -176,9 +176,9 @@ class Trainer(object):
             var_all_rep = np.var(self.all_rep_stats)
             summary.value.add(tag='Repetition/stddev', simple_value=var_all_rep)
             if self.FiGAR:
-                s = 15
+                s = 5
                 a = 6
-                interval= 15
+                interval = 15
                 for i in range(a):
                     rep = s + i*interval
                     ratio = self.all_rep_stats.count(rep)/len(self.all_rep_stats)

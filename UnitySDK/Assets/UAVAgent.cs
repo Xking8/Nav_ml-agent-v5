@@ -102,7 +102,7 @@ public class UAVAgent : Agent {
 
 		} else
 			Menuver (MenuverType.None);
-		agentParameters.numberOfActionsBetweenDecisions = repetition + rep_interval * (int)vectorAction [1];
+		//agentParameters.numberOfActionsBetweenDecisions = repetition + rep_interval * (int)vectorAction [1];
 		/*if (vectorAction [0] == 5)
 			Menuver (MenuverType.Zminus);*/
 		
@@ -221,11 +221,11 @@ public class UAVAgent : Agent {
 		Vector2 targetCircle = Random.insideUnitCircle;
 		//Vector2 targetCircle = Random.insideUnitCircle.normalized;
 		float target_distance;
-		int denseness = Random.Range(0,2);
+		int denseness = 0;// = Random.Range(0,2);
 		if (denseness == 1) //0 for sparse, 1 for dense
 		{	
-			target_distance = 5f;//20
-			targetCircle = Random.insideUnitCircle.normalized;
+			target_distance = 50f;//20
+			targetCircle = Random.insideUnitCircle;//.normalized;
 		}
 		else
 			target_distance = 50f;//20
