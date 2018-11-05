@@ -221,7 +221,7 @@ public class UAVAgent : Agent {
 		Vector2 targetCircle = Random.insideUnitCircle;
 		//Vector2 targetCircle = Random.insideUnitCircle.normalized;
 		float target_distance;
-		int denseness = 1;//Random.Range(0,2);
+		int denseness = Random.Range(0,2);
 		if (denseness == 1) //0 for sparse, 1 for dense
 		{	
 			target_distance = 5f;//20
