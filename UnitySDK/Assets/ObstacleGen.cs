@@ -35,7 +35,7 @@ public class ObstacleGen : MonoBehaviour {
 		}
 		if (denseness == 0) {
 			start_p = -50;
-			ObsRoot = Random.Range (0, 15);//5*Random.Range (0, 6);
+			ObsRoot = Random.Range (0, 15);//14//5*Random.Range (0, 6);
 			//ObsRoot = (int)density;
 
 			ObsNum = ObsRoot * ObsRoot;

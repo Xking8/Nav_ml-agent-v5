@@ -1,3 +1,7 @@
+#Drone Navigation tasks by Reinforcement Learning
+
+**To be edited**
+
 <img src="docs/images/unity-wide.png" align="middle" width="3000"/>
 
 <img src="docs/images/image-banner.png" align="middle" width="3000"/>

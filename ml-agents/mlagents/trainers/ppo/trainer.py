@@ -328,8 +328,8 @@ class PPOTrainer(Trainer):
                     if info.rewards[l] >= 1:
                         self.stats['SuccessRate'].append(1)
                         self.stats[s].append(1)
-                        if self.agent_density[agent_id] == 14:
-                            print("Success in ", s)
+                        #if self.agent_density[agent_id] == 14:
+                        #    print("Success in ", s)
                     else:
                         self.stats['SuccessRate'].append(0)
                         self.stats[s].append(0)

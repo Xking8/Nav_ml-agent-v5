@@ -49,8 +49,8 @@ public class UAVAgent : Agent {
 		//imgSyn.OnSceneChange ();
 		request = false;
 		density = 0;
-		repetition = 15;
-		rep_interval = 15;
+		repetition = 10;
+		rep_interval = 10;
 		agentParameters.numberOfActionsBetweenDecisions = repetition;
 	}
 
@@ -102,7 +102,7 @@ public class UAVAgent : Agent {
 
 		} else
 			Menuver (MenuverType.None);
-		//agentParameters.numberOfActionsBetweenDecisions = repetition + rep_interval * (int)vectorAction [1];
+		agentParameters.numberOfActionsBetweenDecisions = repetition + rep_interval * (int)vectorAction [1];
 		/*if (vectorAction [0] == 5)
 			Menuver (MenuverType.Zminus);*/
 		

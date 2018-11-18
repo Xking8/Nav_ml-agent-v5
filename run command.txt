@@ -20,4 +20,4 @@ environment name: FiGAR(a10,i25)
 
 
 
-mlagents-learn config/trainer_config.yaml --env=envs/Nav_FiGAR_wRepState(s15,a6,i15)_v3.2/Nav_FiGAR_wRepState(s15,a6,i15)_v3.2 --run-id=Nav_FiGAR_wRepState(s15,a6,i15)_v3.2_0 --worker-id=1 --train
+mlagents-learn config/trainer_config.yaml --env=envs/Nav_FiGAR_wRepState(s15,a6,i15)_v3.2/Nav_FiGAR_wRepState(s15,a6,i15)_v3.2 --run-id=Nav_FiGAR_wRepState(s15,a6,i15)_v3.2_0 --worker-id=1 --train --FGAR
