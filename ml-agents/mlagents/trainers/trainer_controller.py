@@ -389,7 +389,14 @@ class TrainerController(object):
                                              memory=take_action_memories,
                                              text_action=take_action_text,
                                              value=take_action_value)
+                    new_density = []
                     for brain_name, trainer in self.trainers.items():
+                        n_actor = len(new_info[brain_name].agents)
+                        new_density = [0] * n_actor
+                        for i in range(n_actor):
+                            new_density[i] = new_info[brain_name].vector_observations[i][
+                                curr_info[brain_name].vector_observations.shape[1] - 2]
+
                         trainer.add_experiences(curr_info, new_info,
                                                 take_action_outputs[brain_name], density, repetition)
                         trainer.process_experiences(curr_info, new_info, density)

@@ -43,8 +43,8 @@ class PPOModel(LearningModel):
                 encoded_state, encoded_next_state = self.create_curiosity_encoders()
                 self.create_inverse_model(encoded_state, encoded_next_state)
                 self.create_forward_model(encoded_state, encoded_next_state)
-            self.create_ppo_optimizer(self.log_probs, self.old_log_probs, self.value,
-                                      self.entropy, beta, epsilon, lr, max_step)
+            self.create_ppo_optimizer(self.log_probs, self.old_log_probs, self.value, self.auxiliary,
+                                      self.entropy, beta, epsilon, lr, max_step, self.density)
 
     @staticmethod
     def create_reward_encoder():
@@ -151,7 +151,7 @@ class PPOModel(LearningModel):
         self.intrinsic_reward = tf.clip_by_value(self.curiosity_strength * squared_difference, 0, 1)
         self.forward_loss = tf.reduce_mean(tf.dynamic_partition(squared_difference, self.mask, 2)[1])
 
-    def create_ppo_optimizer(self, probs, old_probs, value, entropy, beta, epsilon, lr, max_step):
+    def create_ppo_optimizer(self, probs, old_probs, value, auxiliary, entropy, beta, epsilon, lr, max_step, density):
         """
         Creates training-specific Tensorflow ops for PPO models.
         :param probs: Current policy probabilities
@@ -175,10 +175,14 @@ class PPOModel(LearningModel):
 
         clipped_value_estimate = self.old_value + tf.clip_by_value(tf.reduce_sum(value, axis=1) - self.old_value,
                                                                    - decay_epsilon, decay_epsilon)
-
+        #clipped_auxiliary = tf.clip_by_value(auxiliary, 0, 15)
         v_opt_a = tf.squared_difference(self.returns_holder, tf.reduce_sum(value, axis=1))
         v_opt_b = tf.squared_difference(self.returns_holder, clipped_value_estimate)
         self.value_loss = tf.reduce_mean(tf.dynamic_partition(tf.maximum(v_opt_a, v_opt_b), self.mask, 2)[1])
+        # my add
+        self.auxiliary_loss = tf.reduce_mean(tf.squared_difference(auxiliary, density)) #density need to be passed here
+                                    #reduce_sum?
+        # end my add
 
         # Here we calculate PPO policy loss. In continuous control this is done independently for each action gaussian
         # and then averaged together. This provides significantly better performance than treating the probability
@@ -188,9 +192,10 @@ class PPOModel(LearningModel):
         p_opt_b = tf.clip_by_value(r_theta, 1.0 - decay_epsilon, 1.0 + decay_epsilon) * self.advantage
         self.policy_loss = -tf.reduce_mean(tf.dynamic_partition(tf.minimum(p_opt_a, p_opt_b), self.mask, 2)[1])
 
-        self.loss = self.policy_loss + 0.5 * self.value_loss - decay_beta * tf.reduce_mean(
+        self.loss = self.policy_loss + 0.5 * self.value_loss + 0.001 * self.auxiliary_loss - decay_beta * tf.reduce_mean(
             tf.dynamic_partition(entropy, self.mask, 2)[1])
 
         if self.use_curiosity:
             self.loss += 10 * (0.2 * self.forward_loss + 0.8 * self.inverse_loss)
         self.update_batch = optimizer.minimize(self.loss)
+        #how loss backpropogate to different branch?

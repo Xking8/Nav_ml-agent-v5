@@ -48,7 +48,7 @@ class PPOTrainer(Trainer):
                                 sess, self.is_training)
 
         stats = {'cumulative_reward': [], 'episode_length': [], 'value_estimate': [],
-                 'entropy': [], 'value_loss': [], 'policy_loss': [], 'learning_rate': [], 'SuccessRate': []}
+                 'entropy': [], 'auxiliary_loss': [], 'value_loss': [], 'policy_loss': [], 'learning_rate': [], 'SuccessRate': []}
         self.n_density = 36
         rep_stats = [[] for y in range(self.n_density)]
         self.rep_stats = rep_stats
@@ -201,6 +201,7 @@ class PPOTrainer(Trainer):
             self.training_buffer[agent_id].last_take_action_outputs = take_action_outputs
             cur_index = curr_info.agents.index(agent_id)
             self.agent_density[agent_id] = curr_info.vector_observations[cur_index][curr_info.vector_observations.shape[1] - 2]
+            curr_info.vector_observations[cur_index][curr_info.vector_observations.shape[1] - 2] = 0
             #print(self.agent_density)
 
         if curr_info.agents != next_info.agents and self.use_curiosity:
@@ -240,6 +241,7 @@ class PPOTrainer(Trainer):
                     a_dist = stored_take_action_outputs['log_probs']
                     value = stored_take_action_outputs['value']
                     self.training_buffer[agent_id]['actions'].append(actions[idx])
+                    self.training_buffer[agent_id]['density'].append(self.agent_density[agent_id])
                     self.training_buffer[agent_id]['prev_action'].append(stored_info.previous_vector_actions[idx])
                     self.training_buffer[agent_id]['masks'].append(1.0)
                     if self.use_curiosity:
@@ -361,7 +363,7 @@ class PPOTrainer(Trainer):
         Uses training_buffer to update the policy.
         """
         n_sequences = max(int(self.trainer_parameters['batch_size'] / self.policy.sequence_length), 1)
-        value_total, policy_total, forward_total, inverse_total = [], [], [], []
+        value_total, policy_total, auxiliary_total, forward_total, inverse_total = [], [], [], [], []
         advantages = self.training_buffer.update_buffer['advantages'].get_batch()
         self.training_buffer.update_buffer['advantages'].set(
             (advantages - advantages.mean()) / (advantages.std() + 1e-10))
@@ -375,11 +377,14 @@ class PPOTrainer(Trainer):
                 run_out = self.policy.update(buffer.make_mini_batch(start, end), n_sequences)
                 value_total.append(run_out['value_loss'])
                 policy_total.append(np.abs(run_out['policy_loss']))
+                auxiliary_total.append(np.abs(run_out['auxiliary_loss']))
+
                 if self.use_curiosity:
                     inverse_total.append(run_out['inverse_loss'])
                     forward_total.append(run_out['forward_loss'])
         self.stats['value_loss'].append(np.mean(value_total))
         self.stats['policy_loss'].append(np.mean(policy_total))
+        self.stats['auxiliary_loss'].append(np.mean(auxiliary_total))
         if self.use_curiosity:
             self.stats['forward_loss'].append(np.mean(forward_total))
             self.stats['inverse_loss'].append(np.mean(inverse_total))

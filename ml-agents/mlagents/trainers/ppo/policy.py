@@ -48,7 +48,9 @@ class PPOPolicy(Policy):
 
         self.update_dict = {'value_loss': self.model.value_loss,
                             'policy_loss': self.model.policy_loss,
-                            'update_batch': self.model.update_batch}
+                            'auxiliary_loss': self.model.auxiliary_loss,
+                            'update_batch': self.model.update_batch
+                            }
         if self.use_curiosity:
             self.update_dict['forward_loss'] = self.model.forward_loss
             self.update_dict['inverse_loss'] = self.model.inverse_loss
@@ -86,7 +88,9 @@ class PPOPolicy(Policy):
                      self.model.old_value: mini_batch['value_estimates'].flatten(),
                      self.model.advantage: mini_batch['advantages'].reshape([-1, 1]),
                      self.model.all_old_log_probs: mini_batch['action_probs'].reshape(
-                         [-1, sum(self.model.act_size)])}
+                         [-1, sum(self.model.act_size)]),
+                     self.model.density: mini_batch['density'].reshape([-1, 1]) # reshape?
+                     }
         if self.use_continuous_act:
             feed_dict[self.model.output_pre] = mini_batch['actions_pre'].reshape(
                 [-1, self.model.act_size[0]])

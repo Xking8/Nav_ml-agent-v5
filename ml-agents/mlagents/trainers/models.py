@@ -324,6 +324,7 @@ class LearningModel(object):
         for size in self.act_size:
             policy_branches.append(tf.layers.dense(hidden, size, activation=None, use_bias=False,
                                       kernel_initializer=c_layers.variance_scaling_initializer(factor=0.01)))
+            # for second branch dense output neuron = size+1 or has it's own branch
 
         self.all_log_probs = tf.concat([branch for branch in policy_branches], axis=1, name="action_probs")
 
@@ -335,7 +336,12 @@ class LearningModel(object):
 
         value = tf.layers.dense(hidden, 1, activation=None)
         self.value = tf.identity(value, name="value_estimate")
-
+        # my add
+        aux_hidden = tf.layers.dense(hidden, 128, activation=self.swish)
+        auxiliary = tf.layers.dense(aux_hidden, 1, activation=None)
+        self.auxiliary = tf.identity(auxiliary, name='auxiliary_task')
+        self.density = tf.placeholder(tf.float32, shape=[None, 1], name='density')
+        # end my add
         self.action_holder = tf.placeholder(
             shape=[None, len(policy_branches)], dtype=tf.int32, name="action_holder")
         self.selected_actions = tf.concat([
