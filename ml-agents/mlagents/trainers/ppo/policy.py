@@ -45,7 +45,8 @@ class PPOPolicy(Policy):
         if is_training and self.use_vec_obs and trainer_params['normalize']:
             self.inference_dict['update_mean'] = self.model.update_mean
             self.inference_dict['update_variance'] = self.model.update_variance
-
+        if True:
+            self.inference_dict['auxiliary'] = self.model.auxiliary
         self.update_dict = {'value_loss': self.model.value_loss,
                             'policy_loss': self.model.policy_loss,
                             'auxiliary_loss': self.model.auxiliary_loss,

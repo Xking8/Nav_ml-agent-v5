@@ -137,7 +137,7 @@ class PPOTrainer(Trainer):
         self.stats['learning_rate'].append(run_out['learning_rate'])
         if self.policy.use_recurrent:
             return run_out['action'], run_out['memory_out'], None, \
-                   run_out['value'], run_out
+                   run_out['value'], run_out, run_out['auxiliary']
         else:
             return run_out['action'], None, None, run_out['value'], run_out
 

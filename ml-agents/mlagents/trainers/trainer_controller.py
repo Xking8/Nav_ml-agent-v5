@@ -362,7 +362,7 @@ class TrainerController(object):
                     # #resolution = [default_resol] * n_actor
                     # repetition = [0] * n_actor
                     # ##J
-
+                    pred_aux = {}
 
                     for brain_name, trainer in self.trainers.items():
                         # J
@@ -383,8 +383,10 @@ class TrainerController(object):
                          take_action_memories[brain_name],
                          take_action_text[brain_name],
                          take_action_value[brain_name],
-                         take_action_outputs[brain_name]) = \
+                         take_action_outputs[brain_name],
+                         pred_aux[brain_name]) = \
                             trainer.take_action(curr_info)
+                        #print(pred_aux[brain_name])
                     new_info = self.env.step(vector_action=take_action_vector,
                                              memory=take_action_memories,
                                              text_action=take_action_text,
