@@ -202,7 +202,28 @@ class PPOTrainer(Trainer):
             cur_index = curr_info.agents.index(agent_id)
             self.agent_density[agent_id] = curr_info.vector_observations[cur_index][curr_info.vector_observations.shape[1] - 2]
             curr_info.vector_observations[cur_index][curr_info.vector_observations.shape[1] - 2] = 0
-            #print(self.agent_density)
+        #     if len(curr_info.visual_observations) > 1:
+        #         #distenangle depth at first frame
+        #         idx = curr_info.agents.index(agent_id)
+        #
+        #         #if curr_info.visual_observations[1][idx] is not None:
+        #         depth_map = curr_info.visual_observations[1][idx]
+        #         self.training_buffer[agent_id]['depth_map'].append(depth_map)
+        #         #print("original curr", len(curr_info.visual_observations))
+        #         #del curr_info.visual_observations[-1][idx]
+        #         #curr_info.visual_observations[-1] = np.delete(curr_info.visual_observations[-1],idx,0)
+        #
+        #         print("dep", depth_map.shape)
+        #         #print("after curr", len(curr_info.visual_observations))
+        #         print(len(curr_info.visual_observations))
+        #         #print(self.agent_density)
+        #
+        # # delete depth from curr_info.visual_observations
+        # print("original curr", len(curr_info.visual_observations))
+        # if len(curr_info.visual_observations) > 1:
+        #     del curr_info.visual_observations[-1]
+        # print("after curr", len(curr_info.visual_observations))
+        #
 
         if curr_info.agents != next_info.agents and self.use_curiosity:
             curr_to_use = self.construct_curr_info(next_info)
@@ -217,7 +238,32 @@ class PPOTrainer(Trainer):
             if stored_info is not None:
                 idx = stored_info.agents.index(agent_id)
                 next_idx = next_info.agents.index(agent_id)
+                # #disentangle depth at first
+                # print("original curr", len(stored_info.visual_observations))
+                # if len(stored_info.visual_observations) > 1:
+                #     depth_map = stored_info.visual_observations[1][idx]
+                #     self.training_buffer[agent_id]['depth_map'].append(depth_map)
+                #     #del stored_info.visual_observations[-1]
+                # else:
+                #     print("ERRORRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRR")
                 if not stored_info.local_done[idx]:
+                    idx = stored_info.agents.index(agent_id)
+                    next_idx = next_info.agents.index(agent_id)
+                    # disentangle depth at first
+                    # print(agent_id, ": original curr", len(stored_info.visual_observations))
+                    # if len(stored_info.visual_observations) > 1:
+                    #     depth_map = stored_info.visual_observations[1][idx]
+                    #     self.training_buffer[agent_id]['depth_map'].append(depth_map)
+                    #     # del stored_info.visual_observations[-1]
+                    # else:
+                    #     print("ERRORRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRR")
+
+
+
+                    # print("depth obs shape:", stored_info.depth_observations[0].shape)
+                    # print("visual obs shape:", stored_info.visual_observations[0].shape)
+                    self.training_buffer[agent_id]['depth_map'].append(stored_info.depth_observations[0][idx])
+
                     for i, _ in enumerate(stored_info.visual_observations):
                         self.training_buffer[agent_id]['visual_obs%d' % i].append(
                             stored_info.visual_observations[i][idx])
@@ -262,12 +308,17 @@ class PPOTrainer(Trainer):
                     if agent_id not in self.episode_steps:
                         self.episode_steps[agent_id] = 0
                     self.episode_steps[agent_id] += 1
+        # if len(stored_info.visual_observations) > 1:
+        #     del stored_info.visual_observations[-1]
         for i in range(len(density)):
             #print(len(density), ": ", density[i], repetition[i])
             self.rep_stats[int(density[i])].append(repetition[i])
             self.all_rep_stats.append(repetition[i])
             #print(len(density), ": ",density[i], repetition[i])
-
+    def process_depth(self, depth_map):
+        dm_size = 64
+        d_quantization = 8
+        d_map = np.zeros((dm_size, d_quantization))
     def process_experiences(self, current_info: AllBrainInfo, new_info: AllBrainInfo, density):
         """
         Checks agent histories for processing condition, and processes them as necessary.

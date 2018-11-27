@@ -2,13 +2,14 @@ from typing import Dict
 
 
 class BrainInfo:
-    def __init__(self, visual_observation, vector_observation, text_observations, memory=None,
+    def __init__(self, visual_observation, depth_observation, vector_observation, text_observations, memory=None,
                  reward=None, agents=None, local_done=None,
                  vector_action=None, text_action=None, max_reached=None, action_mask=None):
         """
         Describes experience at current step of all agents linked to a brain.
         """
         self.visual_observations = visual_observation
+        self.depth_observations = depth_observation
         self.vector_observations = vector_observation
         self.text_observations = text_observations
         self.memories = memory
@@ -34,11 +35,13 @@ class BrainParameters:
         self.brain_name = brain_name
         self.vector_observation_space_size = brain_param["vectorObservationSize"]
         self.num_stacked_vector_observations = brain_param["numStackedVectorObservations"]
-        self.number_visual_observations = len(brain_param["cameraResolutions"])
+        self.number_visual_observations = len(brain_param["cameraResolutions"]) - 1
         self.camera_resolutions = brain_param["cameraResolutions"]
         self.vector_action_space_size = brain_param["vectorActionSize"]
         self.vector_action_descriptions = brain_param["vectorActionDescriptions"]
         self.vector_action_space_type = ["discrete", "continuous"][brain_param["vectorActionSpaceType"]]
+
+        self.fake_number_visual_observations = len(brain_param["cameraResolutions"])
 
     def __str__(self):
         return '''Unity brain name: {}

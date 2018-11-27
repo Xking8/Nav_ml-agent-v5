@@ -456,6 +456,13 @@ class UnityEnvironment(object):
                                             self.brains[b].camera_resolutions[i]['blackAndWhite'])
                     for x in agent_info_list]
                 vis_obs += [np.array(obs)]
+            #
+            d_obs = [self._process_pixels(x.visual_observations[1],
+                                            self.brains[b].camera_resolutions[1]['blackAndWhite'])
+                     for x in agent_info_list]
+            dep_obs = [np.array(d_obs)]
+            # #
+
             if len(agent_info_list) == 0:
                 memory_size = 0
             else:
@@ -478,6 +485,7 @@ class UnityEnvironment(object):
                 logger.warning("An agent had a NaN observation for brain " + b)
             _data[b] = BrainInfo(
                 visual_observation=vis_obs,
+                depth_observation=dep_obs,
                 vector_observation=np.nan_to_num(np.array([x.stacked_vector_observation for x in agent_info_list])),
                 text_observations=[x.text_observation for x in agent_info_list],
                 memory=memory,
