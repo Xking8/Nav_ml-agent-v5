@@ -24,8 +24,8 @@ class LearningModel(object):
         self.act_size = brain.vector_action_space_size
         self.vec_obs_size = brain.vector_observation_space_size * \
                             brain.num_stacked_vector_observations
-        self.vis_obs_size = brain.number_visual_observations - 1
-
+        self.vis_obs_size = brain.number_visual_observations
+        #self.depth_label = []
     @staticmethod
     def create_global_steps():
         """Creates TF ops to track and increment global training step."""
@@ -183,8 +183,10 @@ class LearningModel(object):
         for i in range(num_streams):
             visual_encoders = []
             hidden_state, hidden_visual = None, None
+            print("vis size: ", self.vis_obs_size)
             if self.vis_obs_size > 0:
                 for j in range(brain.number_visual_observations):
+                    print("create visual encoding---------------------------------------------------")
                     encoded_visual = self.create_visual_observation_encoder(self.visual_in[j],
                                                                             h_size,
                                                                             activation_fn,
@@ -341,6 +343,15 @@ class LearningModel(object):
         auxiliary = tf.layers.dense(aux_hidden, 1, activation=None)
         self.auxiliary = tf.identity(auxiliary, name='auxiliary_task')
         self.density = tf.placeholder(tf.float32, shape=[None, 1], name='density')
+
+        with tf.variable_scope("depth_auxiliary_task"):
+            aux_d_hidden = tf.layers.dense(hidden, 128, activation=self.swish)
+            auxiliary_depth = [tf.layers.dense(aux_d_hidden, 8, activation=None) for i in range(64)]
+            #auxiliary_depth = [tf.layers.dense(aux_d_hidden, [64, 8], activation=None)]
+            self.auxiliary_depth = tf.identity(auxiliary_depth, name='auxiliary_depth')
+            self.depth_label = tf.placeholder(shape=[None, 64, 8], dtype=tf.float32, name='depth_label')
+            #self.depth_label = [tf.placeholder(tf.int32, shape=[None, 64, 8], name='depth_label')]
+            #self.depth_label = [tf.placeholder(tf.int32, shape=[None, 8], name='depth_label')]*64
         # end my add
         self.action_holder = tf.placeholder(
             shape=[None, len(policy_branches)], dtype=tf.int32, name="action_holder")

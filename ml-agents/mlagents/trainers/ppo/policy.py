@@ -45,11 +45,12 @@ class PPOPolicy(Policy):
         if is_training and self.use_vec_obs and trainer_params['normalize']:
             self.inference_dict['update_mean'] = self.model.update_mean
             self.inference_dict['update_variance'] = self.model.update_variance
-        if True:
+        if True: # for print auxiliary value
             self.inference_dict['auxiliary'] = self.model.auxiliary
         self.update_dict = {'value_loss': self.model.value_loss,
                             'policy_loss': self.model.policy_loss,
                             'auxiliary_loss': self.model.auxiliary_loss,
+                            'depth_loss': self.model.depth_loss,
                             'update_batch': self.model.update_batch
                             }
         if self.use_curiosity:
@@ -82,6 +83,9 @@ class PPOPolicy(Policy):
         :param mini_batch: Experience batch.
         :return: Output from update process.
         """
+        #print((type( mini_batch['depth_map']) is np.ndarray))
+        #print(mini_batch['depth_map'].shape)
+        #print(mini_batch['visual_obs0'].shape)
         feed_dict = {self.model.batch_size: num_sequences,
                      self.model.sequence_length: self.sequence_length,
                      self.model.mask_input: mini_batch['masks'].flatten(),
@@ -92,6 +96,16 @@ class PPOPolicy(Policy):
                          [-1, sum(self.model.act_size)]),
                      self.model.density: mini_batch['density'].reshape([-1, 1]) # reshape?
                      }
+
+        mini_batch['depth_map'] = mini_batch['depth_map'].reshape([-1,64,8])
+        #print(mini_batch['depth_map'].shape)
+        feed_dict[self.model.depth_label] = mini_batch['depth_map']
+        # for i in range(64):
+        #     #feed_dict[self.model.depth_label][i] = mini_batch['visual_obs0'][:][i]
+        #     #feed_dict[self.model.vector_in][i] = mini_batch['visual_obs0']
+        #     feed_dict[self.model.depth_label][i] = mini_batch['visual_obs0']
+
+        #print(mini_batch['depth_map'].shape)
         if self.use_continuous_act:
             feed_dict[self.model.output_pre] = mini_batch['actions_pre'].reshape(
                 [-1, self.model.act_size[0]])
@@ -130,6 +144,7 @@ class PPOPolicy(Policy):
             feed_dict[self.model.memory_in] = mem_in
         self.has_updated = True
         run_out = self._execute_model(feed_dict, self.update_dict)
+        #print(run_out)
         return run_out
 
     def get_intrinsic_rewards(self, curr_info, next_info):

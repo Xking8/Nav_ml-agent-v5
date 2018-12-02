@@ -48,7 +48,7 @@ class PPOTrainer(Trainer):
                                 sess, self.is_training)
 
         stats = {'cumulative_reward': [], 'episode_length': [], 'value_estimate': [],
-                 'entropy': [], 'auxiliary_loss': [], 'value_loss': [], 'policy_loss': [], 'learning_rate': [], 'SuccessRate': []}
+                 'entropy': [], 'auxiliary_loss': [], 'depth_loss': [], 'value_loss': [], 'policy_loss': [], 'learning_rate': [], 'SuccessRate': []}
         self.n_density = 36
         rep_stats = [[] for y in range(self.n_density)]
         self.rep_stats = rep_stats
@@ -139,7 +139,7 @@ class PPOTrainer(Trainer):
             return run_out['action'], run_out['memory_out'], None, \
                    run_out['value'], run_out, run_out['auxiliary']
         else:
-            return run_out['action'], None, None, run_out['value'], run_out
+            return run_out['action'], None, None, run_out['value'], run_out, run_out['auxiliary']
 
     def construct_curr_info(self, next_info: BrainInfo) -> BrainInfo:
         """
@@ -201,7 +201,7 @@ class PPOTrainer(Trainer):
             self.training_buffer[agent_id].last_take_action_outputs = take_action_outputs
             cur_index = curr_info.agents.index(agent_id)
             self.agent_density[agent_id] = curr_info.vector_observations[cur_index][curr_info.vector_observations.shape[1] - 2]
-            curr_info.vector_observations[cur_index][curr_info.vector_observations.shape[1] - 2] = 0
+            #curr_info.vector_observations[cur_index][curr_info.vector_observations.shape[1] - 2] = 0
         #     if len(curr_info.visual_observations) > 1:
         #         #distenangle depth at first frame
         #         idx = curr_info.agents.index(agent_id)
@@ -262,7 +262,8 @@ class PPOTrainer(Trainer):
 
                     # print("depth obs shape:", stored_info.depth_observations[0].shape)
                     # print("visual obs shape:", stored_info.visual_observations[0].shape)
-                    self.training_buffer[agent_id]['depth_map'].append(stored_info.depth_observations[0][idx])
+                    self.training_buffer[agent_id]['depth_map'].append(self.process_depth(stored_info.depth_observations[0][idx]))
+                    #print(stored_info.depth_observations[0][idx])
 
                     for i, _ in enumerate(stored_info.visual_observations):
                         self.training_buffer[agent_id]['visual_obs%d' % i].append(
@@ -315,10 +316,25 @@ class PPOTrainer(Trainer):
             self.rep_stats[int(density[i])].append(repetition[i])
             self.all_rep_stats.append(repetition[i])
             #print(len(density), ": ",density[i], repetition[i])
-    def process_depth(self, depth_map):
+    def process_depth(self, depth_obs):
+        depth_obs = depth_obs[16:-16, :]  # crop
+        depth_obs = depth_obs[:, 2:-2]  # crop
+        depth_obs = depth_obs[::13, ::5]  # subsample
+        depth_obs = depth_obs.flatten()
+        depth_obs = np.digitize(depth_obs, [0, 0.05, 0.175, 0.3, 0.425, 0.55, 0.675, 0.8, 1.01])
+        depth_obs -= 1
+        dm_val = depth_obs.astype(int)
+
         dm_size = 64
         d_quantization = 8
-        d_map = np.zeros((dm_size, d_quantization))
+        depth_map = np.zeros((dm_size, d_quantization))  #64x8
+        #print((type(depth_map) is np.ndarray))
+        for i in range(dm_size):
+            depth_map[i, dm_val[i]] = 1  # make one hot
+        #depth_map = np.asarray(depth_map)
+        #print((type(depth_map) is np.ndarray))
+        #print(depth_map.shape)
+        return depth_map
     def process_experiences(self, current_info: AllBrainInfo, new_info: AllBrainInfo, density):
         """
         Checks agent histories for processing condition, and processes them as necessary.
@@ -414,7 +430,7 @@ class PPOTrainer(Trainer):
         Uses training_buffer to update the policy.
         """
         n_sequences = max(int(self.trainer_parameters['batch_size'] / self.policy.sequence_length), 1)
-        value_total, policy_total, auxiliary_total, forward_total, inverse_total = [], [], [], [], []
+        value_total, policy_total, auxiliary_total, depth_total, forward_total, inverse_total =[], [], [], [], [], []
         advantages = self.training_buffer.update_buffer['advantages'].get_batch()
         self.training_buffer.update_buffer['advantages'].set(
             (advantages - advantages.mean()) / (advantages.std() + 1e-10))
@@ -429,13 +445,14 @@ class PPOTrainer(Trainer):
                 value_total.append(run_out['value_loss'])
                 policy_total.append(np.abs(run_out['policy_loss']))
                 auxiliary_total.append(np.abs(run_out['auxiliary_loss']))
-
+                depth_total.append(np.abs(run_out['depth_loss']))
                 if self.use_curiosity:
                     inverse_total.append(run_out['inverse_loss'])
                     forward_total.append(run_out['forward_loss'])
         self.stats['value_loss'].append(np.mean(value_total))
         self.stats['policy_loss'].append(np.mean(policy_total))
         self.stats['auxiliary_loss'].append(np.mean(auxiliary_total))
+        self.stats['depth_loss'].append(np.mean(depth_total))
         if self.use_curiosity:
             self.stats['forward_loss'].append(np.mean(forward_total))
             self.stats['inverse_loss'].append(np.mean(inverse_total))

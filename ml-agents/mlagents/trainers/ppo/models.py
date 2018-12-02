@@ -44,7 +44,7 @@ class PPOModel(LearningModel):
                 self.create_inverse_model(encoded_state, encoded_next_state)
                 self.create_forward_model(encoded_state, encoded_next_state)
             self.create_ppo_optimizer(self.log_probs, self.old_log_probs, self.value, self.auxiliary,
-                                      self.entropy, beta, epsilon, lr, max_step, self.density)
+                                      self.entropy, beta, epsilon, lr, max_step, self.density, self.depth_label)
 
     @staticmethod
     def create_reward_encoder():
@@ -151,7 +151,7 @@ class PPOModel(LearningModel):
         self.intrinsic_reward = tf.clip_by_value(self.curiosity_strength * squared_difference, 0, 1)
         self.forward_loss = tf.reduce_mean(tf.dynamic_partition(squared_difference, self.mask, 2)[1])
 
-    def create_ppo_optimizer(self, probs, old_probs, value, auxiliary, entropy, beta, epsilon, lr, max_step, density):
+    def create_ppo_optimizer(self, probs, old_probs, value, auxiliary, entropy, beta, epsilon, lr, max_step, density, depth_label):
         """
         Creates training-specific Tensorflow ops for PPO models.
         :param probs: Current policy probabilities
@@ -182,6 +182,14 @@ class PPOModel(LearningModel):
         # my add
         self.auxiliary_loss = tf.reduce_mean(tf.squared_difference(auxiliary, density)) #density need to be passed here
                                     #reduce_sum?
+        #self.depth_loss = [tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits_v2(logits=self.auxiliary_depth[i], labels=depth_label[:][i]))
+        self.depth_loss = [tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits_v2(logits=self.auxiliary_depth[i], labels=depth_label[:,i,:]))
+                           for i in range(64)]
+        #self.depth_loss = tf.reduce_mean(
+        #    tf.nn.softmax_cross_entropy_with_logits(logits=self.auxiliary_depth, labels=depth_label))
+        ###self.depth_loss = tf.reduce_mean(
+        ###    tf.nn.softmax_cross_entropy_with_logits_v2(logits=self.auxiliary_depth[1], labels=depth_label[:][0]))
+        self.depth_loss = tf.add_n(self.depth_loss)
         # end my add
 
         # Here we calculate PPO policy loss. In continuous control this is done independently for each action gaussian
@@ -192,7 +200,7 @@ class PPOModel(LearningModel):
         p_opt_b = tf.clip_by_value(r_theta, 1.0 - decay_epsilon, 1.0 + decay_epsilon) * self.advantage
         self.policy_loss = -tf.reduce_mean(tf.dynamic_partition(tf.minimum(p_opt_a, p_opt_b), self.mask, 2)[1])
 
-        self.loss = self.policy_loss + 0.5 * self.value_loss + 0.000001 * self.auxiliary_loss - decay_beta * tf.reduce_mean(
+        self.loss = self.policy_loss + 0.5 * self.value_loss + 1e-2*self.depth_loss - decay_beta * tf.reduce_mean(
             tf.dynamic_partition(entropy, self.mask, 2)[1])
 
         if self.use_curiosity:
