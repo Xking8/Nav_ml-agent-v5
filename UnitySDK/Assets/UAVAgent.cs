@@ -44,7 +44,8 @@ public class UAVAgent : Agent {
 			print ("Null!");
 		imgSyn = GetComponentInChildren<ImageSynthesis> ();
 		//observations [0] = GetComponentInChildren<ImageSynthesis>().capturePasses[2].camera;
-		agentParameters.agentCameras [0] = imgSyn.capturePasses[2].camera;
+		//agentParameters.agentCameras [0] = imgSyn.capturePasses[2].camera;
+		agentParameters.agentCameras [0] = imgSyn.capturePasses[0].camera; //raw image
 		agentParameters.agentCameras [1] = imgSyn.capturePasses[3].camera;
 		//imgSyn.OnSceneChange ();
 		request = false;
