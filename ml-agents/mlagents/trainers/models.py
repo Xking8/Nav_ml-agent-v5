@@ -23,7 +23,7 @@ class LearningModel(object):
         self.use_recurrent = use_recurrent
         self.act_size = brain.vector_action_space_size
         self.vec_obs_size = brain.vector_observation_space_size * \
-                            brain.num_stacked_vector_observations
+                            brain.num_stacked_vector_observations -2
         self.vis_obs_size = brain.number_visual_observations
         #self.depth_label = []
     @staticmethod

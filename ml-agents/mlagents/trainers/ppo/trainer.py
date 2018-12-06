@@ -200,7 +200,7 @@ class PPOTrainer(Trainer):
             self.training_buffer[agent_id].last_brain_info = curr_info
             self.training_buffer[agent_id].last_take_action_outputs = take_action_outputs
             cur_index = curr_info.agents.index(agent_id)
-            self.agent_density[agent_id] = curr_info.vector_observations[cur_index][curr_info.vector_observations.shape[1] - 2]
+            self.agent_density[agent_id] = curr_info.density[cur_index]
             #curr_info.vector_observations[cur_index][curr_info.vector_observations.shape[1] - 2] = 0
         #     if len(curr_info.visual_observations) > 1:
         #         #distenangle depth at first frame

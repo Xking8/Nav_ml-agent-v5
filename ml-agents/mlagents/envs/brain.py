@@ -2,7 +2,7 @@ from typing import Dict
 
 
 class BrainInfo:
-    def __init__(self, visual_observation, depth_observation, vector_observation, text_observations, memory=None,
+    def __init__(self, visual_observation, depth_observation, vector_observation, repetition, density, text_observations, memory=None,
                  reward=None, agents=None, local_done=None,
                  vector_action=None, text_action=None, max_reached=None, action_mask=None):
         """
@@ -11,6 +11,8 @@ class BrainInfo:
         self.visual_observations = visual_observation
         self.depth_observations = depth_observation
         self.vector_observations = vector_observation
+        self.repetition = repetition
+        self.density = density
         self.text_observations = text_observations
         self.memories = memory
         self.rewards = reward
