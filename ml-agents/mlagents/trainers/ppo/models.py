@@ -199,8 +199,8 @@ class PPOModel(LearningModel):
         p_opt_a = r_theta * self.advantage
         p_opt_b = tf.clip_by_value(r_theta, 1.0 - decay_epsilon, 1.0 + decay_epsilon) * self.advantage
         self.policy_loss = -tf.reduce_mean(tf.dynamic_partition(tf.minimum(p_opt_a, p_opt_b), self.mask, 2)[1])
-
-        self.loss = self.policy_loss + 0.5 * self.value_loss + 1e-2*self.auxiliary_loss - decay_beta * tf.reduce_mean(
+        self.anneal_weight = 0.5e-2#tf.train.polynomial_decay(0.8e-2, self.global_step, max_step, 1e-10, power=1.0)
+        self.loss = self.policy_loss + 0.5 * self.value_loss +self.anneal_weight*(self.auxiliary_loss + self.depth_loss) - decay_beta * tf.reduce_mean(
             tf.dynamic_partition(entropy, self.mask, 2)[1])
 
         if self.use_curiosity:
