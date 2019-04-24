@@ -50,8 +50,8 @@ public class UAVAgent : Agent {
 		//imgSyn.OnSceneChange ();
 		request = false;
 		density = 0;
-		repetition = 5;
-		rep_interval = 15;
+		repetition = 1;
+		rep_interval = 3;
 		agentParameters.numberOfActionsBetweenDecisions = repetition;
 	}
 
@@ -83,6 +83,8 @@ public class UAVAgent : Agent {
 	public override void AgentAction(float[] vectorAction, string textAction)
 	{
 		//print ("steps: " + GetStepCount ());
+		//vectorAction [0] = 4;
+		//vectorAction [1] = 0;
 		rs_action = false;
 		if(GetStepCount()<1)
 			imgSyn.OnSceneChange ();
@@ -111,6 +113,9 @@ public class UAVAgent : Agent {
 		if (GetStepCount () >= 1) {
 			//print ("old" + old_distance + "dis:" + distance);
 			AddReward (0.1f * (old_distance - distance));
+			//AddReward (0.1f * (old_distance - distance) * (1+ Mathf.Abs(0.1f* (old_distance - distance)/agentParameters.numberOfActionsBetweenDecisions/0.5f)));
+			//print (0.1f * (old_distance - distance)/ agentParameters.numberOfActionsBetweenDecisions+", "+0.1f * (old_distance - distance)+","+ agentParameters.numberOfActionsBetweenDecisions);
+			//print (0.1f * (old_distance - distance)/agentParameters.numberOfActionsBetweenDecisions);
 		}
 		AddReward (-0.0002f); //timestep penalty
 		old_distance = distance;
@@ -219,8 +224,8 @@ public class UAVAgent : Agent {
 			rb.rotation = Quaternion.Euler (0, -90, 0);
 		}
 		//Target.transform.position = Target.GetComponent<Vector3>();
-		Vector2 targetCircle = Random.insideUnitCircle;
-		//Vector2 targetCircle = Random.insideUnitCircle.normalized;
+		//Vector2 targetCircle = Random.insideUnitCircle;
+		Vector2 targetCircle = Random.insideUnitCircle.normalized;
 		float target_distance;
 		int denseness = 0;// = Random.Range(0,2);
 		if (denseness == 1) //0 for sparse, 1 for dense
@@ -230,7 +235,10 @@ public class UAVAgent : Agent {
 		}
 		else
 			target_distance = 50f;//20
-		Target.transform.position = new Vector3 (StartPos.position.x + targetCircle.x*target_distance, StartPos.position.y-1, StartPos.position.z + targetCircle.y*target_distance);	
+		//random target or not
+		Target.transform.position = new Vector3 (30, StartPos.position.y-1, 40);	
+		//Target.transform.position = new Vector3 (StartPos.position.x + targetCircle.x*target_distance, StartPos.position.y-1, StartPos.position.z + targetCircle.y*target_distance);	
+
 		TargetRb.velocity = new Vector3 (0, 0, 0);
 
 		rb.velocity = new Vector3(0,0,0);
@@ -291,8 +299,9 @@ public class UAVAgent : Agent {
 		*/
 
 		//type = MenuverType.Zplus;
-		float Scaling = 2f*2;
-		float vertiScaling = 1f;
+		//float Scaling = 2f*2;
+		float Scaling = 2f*5;
+		float vertiScaling = 1f*5;
 		if (type == MenuverType.Xplus && rb.velocity.x < vel_limit) { //rotate clockwise
 			rb.velocity = transform.forward*0;
 			Vector3 m_EulerAngleVelocity = new Vector3(0, 10, 0) * Scaling;

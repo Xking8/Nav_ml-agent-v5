@@ -989,6 +989,8 @@ namespace MLAgents
                 if (academyStepCounter %
                     agentParameters.numberOfActionsBetweenDecisions == 0)
                 {
+					//if (reward < 0.99)
+						//reward = reward* (1 + Mathf.Abs (reward / agentParameters.numberOfActionsBetweenDecisions / 0.2f));
                     RequestDecision();
                 }
             }
